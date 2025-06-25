@@ -1,0 +1,4 @@
+aiohttp
+aiofiles
+types-aiofiles
+python-dotenv
