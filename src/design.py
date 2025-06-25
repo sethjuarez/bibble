@@ -81,7 +81,7 @@ async def generate_edit_image(description: str, image: str | list[str], mask: st
 async def image_edit_inspiration():
     # Example usage
     description = """
-    Create a futuristic Santa Monic cityscape at night, with neon lights reflecting off wet streets,
+    Create a futuristic Santa Monica cityscape at night, with neon lights reflecting off wet streets,
     showcasing a blend of modern architecture and classic elements. The scene should be vibrant and bustling,
     with people walking, futuristic vehicles, and a clear night sky filled with stars.
     The atmosphere should evoke a sense of wonder and excitement, capturing the essence of a city that
@@ -134,5 +134,5 @@ async def image_edit_with_mask():
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(image_edit_inspiration())
-    #asyncio.run(image_edit_with_mask())
+    #asyncio.run(image_edit_inspiration())
+    asyncio.run(image_edit_with_mask())
