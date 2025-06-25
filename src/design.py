@@ -1,3 +1,35 @@
+"""
+Bibble Image Design and Editing Module
+
+This module provides AI-powered image editing and enhancement capabilities using
+Azure OpenAI's image models. It supports both inspiration-based editing and 
+precise masked editing workflows.
+
+Features:
+    - Single image and batch image processing
+    - Mask-based targeted editing
+    - Base64 image handling
+    - Automatic file management
+
+Dependencies:
+    - Azure OpenAI account with image editing model access
+    - Environment variables: AZURE_IMAGE_ENDPOINT, AZURE_IMAGE_API_KEY
+
+Usage:
+    import asyncio
+    import base64
+    from design import generate_edit_image
+    
+    async def main():
+        with open("image.jpg", "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("utf-8")
+        
+        result = await generate_edit_image("Make it futuristic", image_data)
+        print(f"Edited image: {result}")
+    
+    asyncio.run(main())
+"""
+
 import io
 import os
 import uuid
@@ -17,16 +49,49 @@ AZURE_IMAGE_ENDPOINT = os.environ.get("AZURE_IMAGE_ENDPOINT", "EMPTY").rstrip("/
 AZURE_IMAGE_API_KEY = os.environ.get("AZURE_IMAGE_API_KEY", "EMPTY")
 
 
-async def save_image(image_base64: str, filename: str):
+async def save_image(image_base64: str, filename: str) -> None:
     """
     Save a base64 encoded image to a file.
+    
+    Args:
+        image_base64: Base64 encoded image data
+        filename: Name for the output image file (should include extension)
+        
+    The image is saved in the 'generated/' directory relative to this module.
     """
     image_bytes = base64.b64decode(image_base64)
-    with open(BASE_DIR / f"generated/{filename}", "wb") as f:
+    output_path = BASE_DIR / f"generated/{filename}"
+    
+    # Ensure the generated directory exists
+    output_path.parent.mkdir(exist_ok=True)
+    
+    with open(output_path, "wb") as f:
         f.write(image_bytes)
 
 
-async def generate_edit_image(description: str, image: str | list[str], mask: str | None = None):
+async def generate_edit_image(description: str, image: str | list[str], mask: str | None = None) -> str:
+    """
+    Generate or edit an image using AI based on a text description.
+    
+    Args:
+        description: Text prompt describing the desired image transformation
+        image: Base64 encoded image data (single image or list of images)
+        mask: Optional base64 encoded mask for targeted editing
+        
+    Returns:
+        str: Filename of the generated image (stored in generated/ directory)
+        
+    Raises:
+        Exception: If the API request fails or returns an error
+        
+    This function supports both single image editing and batch processing.
+    When a mask is provided, only the masked areas are modified.
+    
+    Image specifications:
+        - Output size: 1024x1024
+        - Quality: High
+        - Format: PNG
+    """
     api_version = "2025-04-01-preview"
     deployment_name = "gpt-image-1"
     endpoint = f"{AZURE_IMAGE_ENDPOINT}/openai/deployments/{deployment_name}/images/edits?api-version={api_version}"
@@ -79,6 +144,13 @@ async def generate_edit_image(description: str, image: str | list[str], mask: st
 
 
 async def image_edit_inspiration():
+    """
+    Example function demonstrating inspiration-based image editing.
+    
+    This function loads all images from the images/ directory and applies
+    a creative transformation based on the provided description. It showcases
+    batch processing capabilities for multiple source images.
+    """
     # Example usage
     description = """
     Create a futuristic Santa Monica cityscape at night, with neon lights reflecting off wet streets,
@@ -107,6 +179,13 @@ async def image_edit_inspiration():
 
 
 async def image_edit_with_mask():
+    """
+    Example function demonstrating mask-based image editing.
+    
+    This function shows how to use masks for precise, targeted image editing.
+    It loads a scene image and its corresponding mask, then applies changes
+    only to the masked areas while preserving the rest of the image.
+    """
     # Example usage
     description = """
     A contemplative person in a serene setting, surrounded by nature contemplating the mysteries of the universe.

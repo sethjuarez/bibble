@@ -1,5 +1,28 @@
+"""
+Bibble Video Generation Module
+
+This module provides video generation capabilities using OpenAI's Sora model via Azure OpenAI.
+It handles the complete workflow from text description to generated video file, including
+job submission, status polling, and file storage.
+
+Dependencies:
+    - Azure OpenAI account with Sora model access
+    - Environment variables: AZURE_SORA_ENDPOINT, AZURE_SORA_API_KEY
+
+Usage:
+    import asyncio
+    from video import sora_video_generation
+    
+    async def main():
+        video_path = await sora_video_generation("A peaceful lake scene", seconds=10)
+        print(f"Video generated: {video_path}")
+    
+    asyncio.run(main())
+"""
+
 import os
 import time
+import asyncio
 import aiohttp
 from pathlib import Path
 from dotenv import load_dotenv
@@ -15,15 +38,50 @@ AZURE_SORA_ENDPOINT = os.environ.get("AZURE_SORA_ENDPOINT", "EMPTY").rstrip("/")
 AZURE_SORA_API_KEY = os.environ.get("AZURE_SORA_API_KEY", "EMPTY")
 
 
-async def save_video(stream_reader: StreamReader, filename: str):
+async def save_video(stream_reader: StreamReader, filename: str) -> str:
+    """
+    Save a video stream to the local file system.
+    
+    Args:
+        stream_reader: Async stream reader containing video data
+        filename: Name for the output video file (should include .mp4 extension)
+        
+    Returns:
+        str: Full path to the saved video file
+        
+    The video is saved in the 'generated/' directory relative to this module.
+    """
     video_bytes = await stream_reader.read()
-    with open(BASE_DIR / f"generated/{filename}", "wb") as f:
+    output_path = BASE_DIR / f"generated/{filename}"
+    
+    # Ensure the generated directory exists
+    output_path.parent.mkdir(exist_ok=True)
+    
+    with open(output_path, "wb") as f:
         f.write(video_bytes)
 
-    return f"{BASE_DIR}/generated/{filename}"
+    return str(output_path)
 
 
 async def sora_video_generation(description: str, seconds: int = 10) -> str:
+    """
+    Generate a video using OpenAI's Sora model via Azure OpenAI.
+    
+    Args:
+        description: Text description of the video to generate
+        seconds: Duration of the video in seconds (default: 10)
+        
+    Returns:
+        str: Path to the generated video file, or empty string if generation failed
+        
+    The function creates a video generation job, polls for completion, and downloads
+    the result when ready. The video is saved as an MP4 file in the generated/ directory.
+    
+    Video specifications:
+        - Resolution: 1920x1080 (Full HD)
+        - Format: MP4
+        - Model: Sora
+    """
 
     api_version = "preview"
     create_url = f"{AZURE_SORA_ENDPOINT}/openai/v1/video/generations/jobs?api-version={api_version}"
