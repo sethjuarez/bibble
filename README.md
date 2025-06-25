@@ -1,6 +1,6 @@
 # Bibble - AI-Powered Creative Content Generation
 
-Bibble is a powerful Python toolkit for generating and editing multimedia content using Azure OpenAI services. It provides seamless integration with OpenAI's cutting-edge models including Sora for video generation and DALL-E for image editing and enhancement.
+Bibble is a powerful Python toolkit for generating and editing multimedia content using Azure OpenAI services. It provides seamless integration with OpenAI's cutting-edge models including Sora for video generation and gpt-image-1 for image editing and enhancement.
 
 ## ✨ Features
 
