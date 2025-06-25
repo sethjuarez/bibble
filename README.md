@@ -18,7 +18,7 @@ Bibble is a powerful Python toolkit for generating and editing multimedia conten
 - Python 3.8 or higher
 - Azure OpenAI account with access to:
   - Sora model for video generation
-  - Image generation/editing models (DALL-E)
+  - Image generation/editing models (gpt-image-1)
 
 ### Installation
 
@@ -242,7 +242,7 @@ python design.py
 
 2. **Deploy Models**:
    - Deploy Sora model for video generation
-   - Deploy image editing model (DALL-E)
+   - Deploy image editing model (gpt-image-1)
    - Note deployment names and API versions
 
 3. **Configure Access**:
